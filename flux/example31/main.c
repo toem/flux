@@ -18,24 +18,17 @@ extern "C"
 #include "math.h"
 
 // geometry
-#define MAX_ITEM_ID 2 // maximum id of scope/signal
+#define MAX_ITEM_ID 3 // maximum id of scope/signal
 #define MAX_ENTRY_SIZE 4096
-
-flxTrace trace;
-flxBuffer buffer;
-
-flxresult initBuffer(flxbyte command, void* buffer,
-		struct flxTraceStruct *trace) {
-
-	flxWriteCurrent(trace, 0, flxGetCurrent(trace,0));
-	return FLX_OK;
-}
 
 int main() {
 
 	int n;
 	int iVal;
 	float fVal;
+
+	// output file
+	FILE *out = fopen("flux.example.recTr", "wb");
 
 	// calculate required memory for trace and buffers
 	unsigned bufferSize = FLX_BUFFER_BYTES(MAX_ENTRY_SIZE);
@@ -46,11 +39,11 @@ int main() {
 	unsigned char memoryTrace[traceSize];
 
 	// buffer
-	flxBuffer buffer = flxCreateRingBuffer(memoryBuffer, bufferSize,
-			initBuffer);
+	flxBuffer buffer = flxCreateLinearBuffer(memoryBuffer, bufferSize,
+			flxWriteToFile, out);
 
 	// trace
-	trace = flxCreateTrace(0, MAX_ITEM_ID, MAX_ENTRY_SIZE, memoryTrace,
+	flxTrace trace = flxCreateTrace(0, MAX_ITEM_ID, MAX_ENTRY_SIZE, memoryTrace,
 			traceSize, buffer);
 
 	if (trace != 0) {
@@ -60,18 +53,25 @@ int main() {
 
 		// add signals
 		// parent 0 is root
-		flxAddSignal(trace, 1, 0, "integer", "an integer", FLX_TYPE_INTEGER, 0);
-		flxAddSignal(trace, 2, 0, "float", "a float", FLX_TYPE_FLOAT, 0);
+//		flxAddSignal(trace, 1, 0, "integer", "an integer", FLX_TYPE_INTEGER, 0);
+//		flxAddSignal(trace, 2, 0, "float", "a float", FLX_TYPE_FLOAT, 0);
 
 		// open
 		flxOpen(trace, 0, "ns", 0, 0);
 
-		// use remaining buffe space for ring buffer sections
-		flxAddSections(trace, 10);
-
 		// generate example trace
 		for (n = 0; n < 5000000; n++) {
 
+			if (n>0 && !(n%10000)){
+				// head
+				flxAddModeHead(trace, "example", "flux example",FLX_MODE_HEAD_SYNC);
+
+				// add signals
+				// parent 0 is root
+//				flxAddSignal(trace, 1, 0, "integer", "an integer", FLX_TYPE_INTEGER, 0);
+//				flxAddSignal(trace, 2, 0, "float", "a float", FLX_TYPE_FLOAT, 0);
+				flxOpen(trace, n, "ns", 0, 0);
+			}
 			// time in ns
 			flxdomain current = n * 10;
 
@@ -82,18 +82,14 @@ int main() {
 			// float - same time - use domain=0; isDelta=1
 			fVal = sin(n / 1000.0);
 			flxWriteFloatAt(trace, 2, 0, 0, 1, &fVal, sizeof(float));
-
-			// int *p=0;
-			// *p=34;
 		}
 
 		// close
 		flxClose(trace, 0, n * 10);
 	}
 
-	// write file
-	FILE *out = fopen("flux.example.recTr", "wb");
-	fwrite(buffer->bytes, 1, buffer->pos, out);
+	// flush buffers
+	flxFlush(trace);
 	fclose(out);
 }
 
