@@ -16,6 +16,7 @@ public class Examples {
         Example07.example();
         Example08.example();       
         Example09.example(); 
+        Example10.example(); 
         System.out.println("Finished");
     }
 

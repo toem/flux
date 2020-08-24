@@ -8,7 +8,9 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-
+import java.util.zip.Deflater;
+import java.io.ByteArrayOutputStream;
+import java.util.zip.GZIPOutputStream;
 /**
  * Main flux class
  */
@@ -129,13 +131,13 @@ public class Flx {
 
     public final static int PACK_LZ4 = 0;
     public final static int PACK_FLZ = 1;
-
+    public final static int PACK_ZLIB = 2;
+    public final static int PACK_GZIP = 3;
+    
     public final static int ENTRY_HEAD = 0x01; // Head
 
     public final static int ENTRY_SWTH = 0x04; // Trace Switch
     public final static int ENTRY_PBLK = 0x05; // PAcked Block
-    public final static int ENTRY_PBLK_MODE_LZ4 = 0;
-    public final static int ENTRY_PBLK_MODE_FLZ = 1;
     public final static int ENTRY_SECT = 0x06; // Section Block
 
     // content definitions
@@ -279,33 +281,21 @@ public class Flx {
             return ERROR_BUFFER_NOT_AVAIL;
         }
 
-        public int writePackEntry(byte mode, byte[] value, int size) {
-            // int request = 0;
-            // int sizeLen = 0;
-            // int compressed = 0;
-            // byte packed[size];
-            //
-            // // compress
-            // if (mode == PACK_LZ4)
-            // compressed = LZ4_compress((const char*) value, (char*) packed, size);
-            // else if (mode == PACK_FLZ)
-            // compressed = fastlz_compress((const char*) value, size, packed);
-            // else
-            // return ERROR_INVALID_PACK_MODE;
-            //
-            // request = 3 + maxIntPlusLen * 2 + compressed;
-            // int started, written;
-            // if ((started = written = this.request(request)) >= OK) {
-            //
-            // this.bytes[written++] = 0;
-            // this.bytes[written++] = ENTRY_PBLK;
-            // this.bytes[written++] = mode;
-            // written += plusWrite(size, this.bytes, written); // original size
-            // written += plusWrite(compressed, this.bytes, written); // compressed size
-            // _arraycopy(packed, 0, this.bytes, written, compressed);
-            // written += compressed;
-            // return this.commit(written - started);
-            // }
+        public int writePackEntry(int mode, byte[] compressed, int originalSize) {
+            
+            // request buffer
+            int request = 3 + plusLen(originalSize)  +  valLen(compressed);
+            
+            int started = this.request(request);
+            if (started >= OK) {
+                int written = started;
+                this.bytes[written++] = 0;
+                this.bytes[written++] = ENTRY_PBLK;
+                this.bytes[written++] = (byte) mode;               
+                written += plusWrite(originalSize, this.bytes, written); // original size
+                written += valWrite(compressed, SZDF_SIZEONLY, this.bytes, written);
+                return this.commit(written - started);
+            }
             return ERROR_BUFFER_NOT_AVAIL;
         }
 
@@ -1295,6 +1285,8 @@ public class Flx {
 
     }
     
+
+
     public static class SimpleFileOutputBuffer extends SimpleOutputStreamBuffer {
 
         public SimpleFileOutputBuffer(int size, File file) throws FileNotFoundException {
@@ -1329,6 +1321,53 @@ public class Flx {
         @Override
         public int close() throws IOException {
             output.close();
+            return OK;
+        }
+    }
+
+    public static class SimpleCompressionBuffer extends SimpleBuffer {
+
+        protected Buffer output;
+        protected int mode;
+        protected byte[] compressed;
+        
+        public SimpleCompressionBuffer(int size, int mode, Buffer output) {
+            super(size);
+            this.mode = mode;
+            this.output = output;
+            this.compressed = new byte[size];
+        }
+
+        @Override
+        public int flush() {
+            try {
+                if (mode == PACK_ZLIB) {
+                    Deflater compresser = new Deflater();
+                    compresser.setInput(this.bytes, 0, this.pos);
+                    compresser.finish();                  
+                    int compressedSize = compresser.deflate(compressed);
+                    compresser.end();
+                    byte[] value = new byte[compressedSize];
+                    System.arraycopy(compressed, 0, value, 0, compressedSize);
+                    output.writePackEntry(mode, value, this.pos);
+                }else if (mode == PACK_GZIP) {
+                    
+                    ByteArrayOutputStream compressedStream = new ByteArrayOutputStream(compressed.length);
+                    GZIPOutputStream zipStream = new GZIPOutputStream(compressedStream);
+                    zipStream.write(this.bytes, 0, this.pos);
+                    zipStream.close();                  
+                    byte[] value = compressedStream.toByteArray();
+                    output.writePackEntry(mode, value, this.pos);
+                }
+                pos = 0;
+            } catch (Throwable e) {
+                return ERROR_BUFFER_HANDLE;
+            }
+            return OK;
+        }
+
+        @Override
+        public int close() throws IOException {
             return OK;
         }
     }

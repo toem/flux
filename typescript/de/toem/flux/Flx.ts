@@ -196,15 +196,15 @@ export class Flx {
 
     public static PACK_FLZ : number = 1;
 
+    public static PACK_ZLIB : number = 2;
+
+    public static PACK_GZIP : number = 3;
+
     public static ENTRY_HEAD : number = 1;
 
     public static ENTRY_SWTH : number = 4;
 
     public static ENTRY_PBLK : number = 5;
-
-    public static ENTRY_PBLK_MODE_LZ4 : number = 0;
-
-    public static ENTRY_PBLK_MODE_FLZ : number = 1;
 
     public static ENTRY_SECT : number = 6;
 
@@ -675,7 +675,18 @@ export namespace Flx {
             return Flx.ERROR_BUFFER_NOT_AVAIL;
         }
 
-        public writePackEntry(mode : number, value : number[], size : number) : number {
+        public writePackEntry(mode : number, compressed : number[], originalSize : number) : number {
+            let request : number = 3 + Flx.plusLen(originalSize) + Flx.valLen(compressed);
+            let started : number = this.request(request);
+            if (started >= Flx.OK){
+                let written : number = started;
+                this.bytes[written++] = 0;
+                this.bytes[written++] = Flx.ENTRY_PBLK;
+                this.bytes[written++] = (<number>mode|0);
+                written += Flx.plusWrite(originalSize, this.bytes, written);
+                written += Flx.valWrite(compressed, Flx.SZDF_SIZEONLY, this.bytes, written);
+                return this.commit(written - started);
+            }
             return Flx.ERROR_BUFFER_NOT_AVAIL;
         }
 

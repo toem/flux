@@ -7,6 +7,8 @@ import Example06
 import Example07
 import Example08
 import Example09
+import Example10
+
 
 def example() :
     
@@ -20,6 +22,7 @@ def example() :
     Example07.example();
     Example08.example();
     Example09.example();
+    Example10.example();
     print "Finished"
 example()    
 

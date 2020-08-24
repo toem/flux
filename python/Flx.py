@@ -1,4 +1,4 @@
-
+import zlib
 
 """*
  * Main flux class
@@ -120,13 +120,13 @@ STATE_UNKNOWN_BITS = 15;
 
 PACK_LZ4 = 0;
 PACK_FLZ = 1;
+PACK_ZLIB = 2;
+PACK_GZIP = 3;
 
 ENTRY_HEAD = 0x01; # Head
 
 ENTRY_SWTH = 0x04; # Trace Switch
 ENTRY_PBLK = 0x05; # PAcked Block
-ENTRY_PBLK_MODE_LZ4 = 0;
-ENTRY_PBLK_MODE_FLZ = 1;
 ENTRY_SECT = 0x06; # Section Block
 
 # content definitions
@@ -270,33 +270,21 @@ class Buffer :
         return ERROR_BUFFER_NOT_AVAIL;
     
 
-    def writePackEntry(self ,mode, value, size) :
-        # request = 0;
-        # sizeLen = 0;
-        # compressed = 0;
-        # packed[size];
-        #
-        # # compress
-        # if (mode == PACK_LZ4)
-        # compressed = LZ4_compress((const char*) value, (char*) packed, size);
-        # elif (mode == PACK_FLZ)
-        # compressed = fastlz_compress((const char*) value, size, packed);
-        # else
-        # return ERROR_INVALID_PACK_MODE;
-        #
-        # request = 3 + maxIntPlusLen * 2 + compressed;
-        # started, written;
-        # if ((started = written = self.request(request)) >= OK) :
-        #
-        # self.bytes[written] = 0; written+=1
-        # self.bytes[written] = ENTRY_PBLK; written+=1
-        # self.bytes[written] = mode; written+=1
-        # written += plusWrite(size, self.bytes, written); # original size
-        # written += plusWrite(compressed, self.bytes, written); # compressed size
-        # _arraycopy(packed, 0, self.bytes, written, compressed);
-        # written += compressed;
-        # return self.commit(written - started);
-        # 
+    def writePackEntry(self ,mode, compressed, originalSize) :
+        
+        # request buffer
+        request = 3 + plusLen(originalSize)  +  valLen(compressed);
+        
+        started = self.request(request);
+        if (started >= OK) :
+            written = started;
+            self.bytes[written] = 0; written+=1
+            self.bytes[written] = ENTRY_PBLK; written+=1
+            self.bytes[written] = mode;                written+=1
+            written += plusWrite(originalSize, self.bytes, written); # original size
+            written += valWrite(compressed, SZDF_SIZEONLY, self.bytes, written);
+            return self.commit(written - started);
+        
         return ERROR_BUFFER_NOT_AVAIL;
     
 
@@ -1308,7 +1296,34 @@ class SimpleFileOutputBuffer (SimpleBuffer) :
     def close(self ,)  :
         self.output.close();
         return OK;
-        
+
+class SimpleCompressionBuffer (SimpleBuffer) :
+
+    mode = None;
+    output = None;
+    
+    def __init__(self,size, mode, output) :
+        SimpleBuffer.__init__(self, size)
+        self.mode  = mode;
+        self.output  = output;
+    
+
+    
+    def flush(self) :
+
+        if (self.mode == PACK_ZLIB):
+            value = str(self.bytes[ 0: self.pos]).encode('zlib');
+            self.output.writePackEntry(self.mode, value, self.pos);
+        else:
+            return ERROR_BUFFER_HANDLE;
+        self.pos = 0;
+        return OK;
+    
+
+    
+    def close(self ,)  :
+
+        return OK;        
 # ######################################################################################################################
 # # Trace creation and handling
 # ######################################################################################################################

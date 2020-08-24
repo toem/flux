@@ -1,6 +1,7 @@
 /* Generated from Java with JSweet 3.0.0-RC3 - http://www.jsweet.org */
 import { Flx } from '../Flx';
 import { SimpleFileOutputBuffer } from '../SimpleFileOutputBuffer';
+import { SimpleCompressionBuffer } from '../SimpleCompressionBuffer';
 
 export class Example08 {
     static MAX_ITEM_ID : number = 20;

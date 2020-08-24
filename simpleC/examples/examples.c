@@ -30,8 +30,8 @@ int main() {
 	example08();
 
 	example10();
-	example11();
-	example12();
+	//example11();
+	//example12();
 	printf("Finished\n");
 
 }

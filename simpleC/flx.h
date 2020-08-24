@@ -175,6 +175,8 @@ typedef long flxsdelta; // domain signed delta
 
 #define FLX_PACK_LZ4  0
 #define FLX_PACK_FLZ  1
+#define FLX_PACK_ZLIB = 2;
+#define FLX_PACK_GZIP = 3;
 
 // ######################################################################################################################
 // # Buffer creation and handling

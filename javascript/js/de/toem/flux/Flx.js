@@ -418,11 +418,11 @@ Flx.STATE_P_BITS = 14;
 Flx.STATE_UNKNOWN_BITS = 15;
 Flx.PACK_LZ4 = 0;
 Flx.PACK_FLZ = 1;
+Flx.PACK_ZLIB = 2;
+Flx.PACK_GZIP = 3;
 Flx.ENTRY_HEAD = 1;
 Flx.ENTRY_SWTH = 4;
 Flx.ENTRY_PBLK = 5;
-Flx.ENTRY_PBLK_MODE_LZ4 = 0;
-Flx.ENTRY_PBLK_MODE_FLZ = 1;
 Flx.ENTRY_SECT = 6;
 Flx.ENTRY_SCPD = 16;
 Flx.ENTRY_SIGD = 17;
@@ -561,7 +561,18 @@ Flx["__class"] = "de.toem.flux.Flx";
             }
             return Flx.ERROR_BUFFER_NOT_AVAIL;
         }
-        writePackEntry(mode, value, size) {
+        writePackEntry(mode, compressed, originalSize) {
+            let request = 3 + Flx.plusLen(originalSize) + Flx.valLen(compressed);
+            let started = this.request(request);
+            if (started >= Flx.OK) {
+                let written = started;
+                this.bytes[written++] = 0;
+                this.bytes[written++] = Flx.ENTRY_PBLK;
+                this.bytes[written++] = (mode | 0);
+                written += Flx.plusWrite(originalSize, this.bytes, written);
+                written += Flx.valWrite(compressed, Flx.SZDF_SIZEONLY, this.bytes, written);
+                return this.commit(written - started);
+            }
             return Flx.ERROR_BUFFER_NOT_AVAIL;
         }
         writeSectionEntries(noOfSections) {

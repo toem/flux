@@ -7,5 +7,7 @@ digraph "Flx.Buffer"
   Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
   Node2 [label="Flx.SimpleBuffer",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classFlx_1_1SimpleBuffer.html",tooltip=" "];
   Node2 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
-  Node3 [label="Flx.SimpleFileOutputBuffer",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classFlx_1_1SimpleFileOutputBuffer.html",tooltip=" "];
+  Node3 [label="Flx.SimpleCompressionBuffer",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classFlx_1_1SimpleCompressionBuffer.html",tooltip=" "];
+  Node2 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="Flx.SimpleFileOutputBuffer",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classFlx_1_1SimpleFileOutputBuffer.html",tooltip=" "];
 }
