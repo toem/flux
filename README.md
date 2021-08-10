@@ -36,16 +36,32 @@ You can transmit data over time or other domains like frequency, index, or using
 
 
 [more about flux](https://toem.de/index.php/products/flux-trace)
+
 [F001 FluxConcept](https://toem.de/index.php/resources/all-documents/187-fluxconcept)
+
 [F002 Hello flux](https://toem.de/index.php/resources/all-documents/189-hello-flux)
+
 [F003 To be handled](https://toem.de/index.php/resources/all-documents/190-to-be-handled)
+
 [F004 Scopes and numerical data](https://toem.de/index.php/resources/all-documents/191-scopes-and-numeric-data)
+
 [F005 Text, enums and binary data](https://toem.de/index.php/resources/all-documents/192-text-enumeration-and-binary-data)
+
 [F006 Structured data](https://toem.de/index.php/resources/all-documents/193-structured-data)
+
 [F007 Arrays](https://toem.de/index.php/resources/all-documents/194-flux-arrays)
+
 [F008 Logic data](https://toem.de/index.php/resources/all-documents/195-logic-data)
+
 [F009 Relations and labels](https://toem.de/index.php/resources/all-documents/196-relations-and-labels)
 
 
 
+# simpleC
+simpleC supports all c environments as it does not require any libraries. Its using static memory allocations.
+
+    cd simpleC/examples
+    make clean
+    make
+    make trace
 

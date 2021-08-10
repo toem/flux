@@ -17,6 +17,7 @@ clean:
 	rm -f $(TRACES)/*
 
 trace: 
+	mkdir -p $(TRACES)
 	rm -f $(TRACES)/*
 	./$(OUT)	
 	
