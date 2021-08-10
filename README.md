@@ -1,7 +1,7 @@
+<img src="flux.png" style="width:256px; float: left;" >
+
 # flux
 flux trace is a multi-functional open-source waveform/trace format targeted at semiconductor and embedded multicore system applications. The trace data is packed into a binary format and allows scalable compression. 
-
-![flux](aufdemflux.png)
 
 ### Multi-core
 flux is designed for large scale multi-core architectures. traces from different cores or devices can be merged and synchronized.
@@ -55,6 +55,7 @@ You can transmit data over time or other domains like frequency, index, or using
 
 [F009 Relations and labels](https://toem.de/index.php/resources/all-documents/196-relations-and-labels)
 
+![flux](aufdemflux.png)
 
 
 # simpleC
