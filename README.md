@@ -3,10 +3,6 @@
 # flux
 flux trace is a multi-functional open-source waveform/trace format targeted at semiconductor and embedded multicore system applications. The trace data is packed into a binary format and allows scalable compression. 
 
-## Play with gitpod
-
-Just enter [https://www.gitpod.io#https://github.com/toem/flux](https://www.gitpod.io#https://github.com/toem/flux) into your browser and log-in with your github account.
-
 ### Multi-core
 flux is designed for large scale multi-core architectures. traces from different cores or devices can be merged and synchronized.
 
@@ -61,6 +57,9 @@ You can transmit data over time or other domains like frequency, index, or using
 
 ![flux](aufdemflux.png)
 
+## Play with gitpod
+
+Just enter [https://www.gitpod.io#https://github.com/toem/flux](https://www.gitpod.io#https://github.com/toem/flux) into your browser and log-in with your github account.
 
 # simpleC
 simpleC supports all c environments as it does not require any libraries. Its using static memory allocations.
