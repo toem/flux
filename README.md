@@ -1,22 +1,51 @@
 # flux
-flux trace is an open source trace format for large scale multi-core projects. The project contains emitter sources in C-language.
+flux trace is a multi-functional open-source waveform/trace format targeted at semiconductor and embedded multicore system applications. The trace data is packed into a binary format and allows scalable compression. 
 
-## Introduction
-flux trace format is an open waveform/trace format targeting semiconductor and multi-core embedded system use-cases. The trace data is packed into a binary format and allows scalable compression. 
-### Traces
-A trace combines a set of signals and scopes (hierarchy of items). You may create multiple traces. Each trace is identified by an integer value. The output of multiple traces can be easily combined (e.g. the output from multiple cores).
-On the emitter side (target, defice under test,..), a trace is represendet by a trace object. It is usually created at start-up (together with at least one buffer) and used as reference when calling methods of the trace API. 
-### Buffers
-Buffers are used to store, organize and handle the trace data. The trace information is packed into snippets (entries).
-You may create multiple buffers of different type. Each trace object needs to be connected to one buffer. You find linear and ring-buffers and may create your custom buffer.
-### Entry
-Entries are binary representation (chunks of bytes) of item definitions or value changes, compiled by the flux methods and sent to the trace buffers and output.
-Each entry is identified by a tag and followed by a tag specific structure.
-### Handler
-Buffers may have handlers. In the first examples, we are using the flxWriteToFile handler (c language). This handler writes the content to a file as soon there is not enough buffer space available or when calling the flush method.
-You may define your own handler (e.g. write the trace output to a custom interface). Handlers are also used for compression. The handler of one buffer may compress its entries and sends them into a second buffer.
-### Items 
-Items are signals or scopes. Each item has an integer itemIdand a parentId. The parentId points to any scope item.The root scope itemhas the id=0.
-Addionally you may add references to signals at a given scope. References dont have an itemId.
+![flux](aufdemflux.png)
 
-[more about flux](http://toem.de)
+### Multi-core
+flux is designed for large scale multi-core architectures. traces from different cores or devices can be merged and synchronized.
+
+### Scalable Compression
+flux is a dense binary format. Optionally you can use compression to additionally pack the signal data.
+
+### Multi-functional
+Using flux, you can trace events, store analog and digital signal waveforms, log registers and variable values and forward messages in any form and structure.
+
+### Variable buffer management
+Buffers define how to keep and handle trace data within your application. You may use existing buffer types (ring buffer, simple buffer) or define your own one.
+
+### Multi-language
+Trace emitters for Java, Python, C/C++, JS and Typescript available.
+
+### Generic concept
+
+You can derive your own custom trace format based on flux by adding a specific structure and semantics.
+
+### Stream trace to file, tcp, udp or custom streams
+
+Buffer handlers are available for streaming data into files, over TCP or UDP. Custom handlers allow any other type of streaming.
+
+### Supporting wide range of datra types
+
+Whether integer data of any length, arrays, logic vectors or structures. flux trace has the means to package your information.
+
+### Multi-domain
+
+You can transmit data over time or other domains like frequency, index, or using a second independend time domain (scope).
+
+
+[more about flux](https://toem.de/index.php/products/flux-trace)
+[F001 FluxConcept](https://toem.de/index.php/resources/all-documents/187-fluxconcept)
+[F002 Hello flux](https://toem.de/index.php/resources/all-documents/189-hello-flux)
+[F003 To be handled](https://toem.de/index.php/resources/all-documents/190-to-be-handled)
+[F004 Scopes and numerical data](https://toem.de/index.php/resources/all-documents/191-scopes-and-numeric-data)
+[F005 Text, enums and binary data](https://toem.de/index.php/resources/all-documents/192-text-enumeration-and-binary-data)
+[F006 Structured data](https://toem.de/index.php/resources/all-documents/193-structured-data)
+[F007 Arrays](https://toem.de/index.php/resources/all-documents/194-flux-arrays)
+[F008 Logic data](https://toem.de/index.php/resources/all-documents/195-logic-data)
+[F009 Relations and labels](https://toem.de/index.php/resources/all-documents/196-relations-and-labels)
+
+
+
+
