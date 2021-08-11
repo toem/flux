@@ -3,6 +3,8 @@
 # flux
 flux trace is a multi-functional open-source waveform/trace format targeted at semiconductor and embedded multicore system applications. The trace data is packed into a binary format and allows scalable compression. 
 
+[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/toem/flux)
+
 ### Multi-core
 flux is designed for large scale multi-core architectures. traces from different cores or devices can be merged and synchronized.
 
